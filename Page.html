@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+      }
+      button {
+        background-color: #4285F4;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+        border-radius: 2px;
+      }
+      button:hover {
+        background-color: #357ABD;
+      }
+      input, select {
+        padding: 5px;
+        width: 100%;
+        box-sizing: border-box;
+        margin-bottom: 10px;
+      }
+      label {
+        margin-bottom: 5px;
+        display: block;
+      }
+    </style>
+    <script>
+      function onSuccess(headers) {
+        var dropdown = document.getElementById("column");
+        headers.forEach(function(header) {
+          var option = document.createElement("option");
+          option.value = header;
+          option.innerText = header;
+          dropdown.appendChild(option);
+        });
+      }
+
+      window.onload = function() {
+        google.script.run.withSuccessHandler(onSuccess).getColumnNames();
+        google.script.run.withSuccessHandler(function(apiKey) {
+          document.getElementById('apiKey').value = apiKey;
+        }).getApiKey();
+      };
+    </script>
+  </head>
+  <body>
+    <label>Clave API:</label>
+    <input type="text" id="apiKey" placeholder="Ingresa la clave API de Supabase">
+    <label>Columna para Migrar:</label>
+    <select id="column"></select>
+    <label>Tabla en Supabase:</label>
+    <input type="text" id="table" placeholder="Ingresa el nombre de la tabla">
+    <label>Columna en Supabase:</label>
+    <input type="text" id="supabaseColumn" placeholder="Ingresa el nombre de la columna en Supabase">
+    <button onclick="migrate()">Migrar</button>
+    <script>
+      function migrate() {
+        var column = document.getElementById("column").value;
+        var table = document.getElementById("table").value;
+        var supabaseColumn = document.getElementById("supabaseColumn").value;
+        var apiKey = document.getElementById("apiKey").value;
+        if(apiKey) {
+          google.script.run.saveApiKey(apiKey);
+          google.script.run.migrateData(column, table, supabaseColumn, apiKey);
+        } else {
+          alert("¡Por favor proporciona una Clave API!");
+        }
+      }
+    </script>
+  </body>
+</html>
